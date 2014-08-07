@@ -1,0 +1,5 @@
+_site
+
+# Skip cached files
+**/.sass-cache
+**/.sass-cache/*
