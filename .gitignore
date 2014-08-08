@@ -3,3 +3,6 @@ _site
 # Skip cached files
 **/.sass-cache
 **/.sass-cache/*
+
+_assets/stylesheets/*.css
+
