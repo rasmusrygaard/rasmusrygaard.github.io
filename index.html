@@ -1,9 +1,8 @@
 ---
 layout: default
+title: Home
 ---
 
-<div class="home">
-
-  <h1>Stay Tuned</h1>
-
-</div>
+{% assign page = site.posts.first %}
+{% assign content = page.content %}
+{% include post.html %}

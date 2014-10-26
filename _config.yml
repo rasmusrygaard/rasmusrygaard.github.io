@@ -12,3 +12,6 @@ permalink: pretty
 
 assets:
   js_compressor: uglifier
+
+sass:
+    sass_dir: _assets/_stylesheets
