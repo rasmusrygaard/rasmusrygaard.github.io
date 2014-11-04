@@ -1,0 +1,10 @@
+---
+layout: post
+title:  "Pumpkins"
+date:   2014-10-11 12:00:00
+categories: instagram
+---
+
+![Pumpkins rrygaard]({{ '20141011_pumpkins.jpg' || asset_path}})
+
+
