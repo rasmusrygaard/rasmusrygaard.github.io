@@ -14,4 +14,4 @@ assets:
   js_compressor: uglifier
 
 sass:
-    sass_dir: _assets/_stylesheets
+    sass_dir: _assets/stylesheets
