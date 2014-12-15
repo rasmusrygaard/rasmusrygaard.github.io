@@ -3,6 +3,17 @@ layout: default
 title: Home
 ---
 
-{% assign page = site.posts.first %}
-{% assign content = page.content %}
-{% include post.html %}
+<div class="content" id="home">
+  <div id="sidebar-button">
+    <img src="{{ 'sidebar-button.png' | asset_path }}">
+  </div>
+
+  {% for page in site.posts %}
+    <div class="post-index post">
+      {% assign content = page.content %}
+      {% assign hide_published_on = true %}
+      {% include post_detail.html %}
+    </div>
+  {% endfor %}
+
+</div>
