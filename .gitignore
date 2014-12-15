@@ -5,4 +5,4 @@ _site
 **/.sass-cache/*
 
 _assets/stylesheets/*.css
-
+!_assets/stylesheets/app.css
