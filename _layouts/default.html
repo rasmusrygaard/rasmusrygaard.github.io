@@ -6,8 +6,7 @@
       <title>{{ page.title }} - rasmusrygaard.com</title>
       <meta name="viewport" content="width=device-width">
 
-      {% javascript app %}
-      {% stylesheet app %}
+      {% javascript app async %}
 
       <!-- Google Fonts -->
       <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700' rel='stylesheet' type='text/css'>
@@ -44,5 +43,8 @@
       {{ content }}
 
     </div>
+    <style>
+      {% asset app.css %}
+    </style>
   </body>
 </html>

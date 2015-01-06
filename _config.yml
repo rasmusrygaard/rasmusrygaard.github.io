@@ -7,11 +7,15 @@ url: "http://rasmusrygaard.com.com"
 github_username:  rasmusrygaard
 
 # Build settings
-markdown: kramdown
+markdown: redcarpet
+redcarpet: 
+  extensions: [fenced_code_blocks, footnotes]
 permalink: pretty
+
 
 assets:
   js_compressor: uglifier
+  css_compressor: sass
   gzip: [ text/css, application/javascript, image/jpeg ]
 
 sass:

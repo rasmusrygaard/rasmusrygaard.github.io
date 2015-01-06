@@ -1,13 +1,60 @@
+$border-color: #ddd;
+
 #info-container {
   margin-bottom: 2em;
 }
 
 .post pre {
-  padding: 1.4em;
+  padding: 0.45em 0.9em;
   margin-bottom: 1.4em;
 }
 
 .post-index {
   border-bottom: 1px solid #e7e7e7;
   margin-bottom: 2.8em;  
+}
+
+.post p, .post li {
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 17px;
+  text-align: left;
+}
+
+.post .highlight {
+    font-size: 14px;
+}
+
+.post p {
+  margin-bottom: 1.45em; 
+}
+
+.post li {
+  margin-bottom: 0.45em;
+}
+
+.footnotes p {
+  font-size: 14px;
+}
+
+.post .image-centered {
+  border: 1px solid $border-color;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.post .image-left, .post .image-right {
+  border: 1px solid $border-color;
+  float: left;
+  margin-bottom: 1em;  
+}
+
+.post .image-right {
+  border-left-width: 0px;
+}
+
+.post p code {
+  border: none;
+  padding: 0;
+  background-color: $border-color;
 }
