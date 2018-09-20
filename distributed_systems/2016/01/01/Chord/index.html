@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Chord</title>
+	
+	<meta name="author" content="Rasmus Rygaard">
+
+	<!-- Enable responsive viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Le styles -->
+	<link href="/assets/resources/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/resources/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="/assets/resources/syntax/syntax.css" rel="stylesheet">
+	<link href="/assets/css/style.css" rel="stylesheet">
+
+	<!-- Le fav and touch icons -->
+	<!-- Update these with your own images
+	<link rel="shortcut icon" href="images/favicon.ico">
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+	-->
+
+	<link rel="alternate" type="application/rss+xml" title="" href="/feed.xml">
+</head>
+
+<body>
+	<nav class="navbar navbar-default visible-xs" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://github.com/rasmusrygaard">
+				<i class="fa fa-github"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://twitter.com/rasmusrygaard">
+				<i class="fa fa-twitter"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="mailto:rasmus@rasmusrygaard.com">
+				<i class="fa fa-envelope"></i>
+			</a>
+			
+			<a class="navbar-brand" href="/">
+				<img src="http://www.gravatar.com/avatar/08296ac91e277562812a1727de033632?s=35" class="img-circle" />
+				Rasmus Rygaard
+			</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/">Home</a></li>
+				<li><a href="/categories.html">Categories</a></li>
+				<li><a href="/tags.html">Tags</a></li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</nav>
+
+	<!-- nav-menu-dropdown -->
+	<div class="btn-group hidden-xs" id="nav-menu">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+			<i class="fa fa-bars"></i>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="/"><i class="fa fa-home"></i>Home</a></li>
+			<li><a href="/categories.html"><i class="fa fa-folder"></i>Categories</a></li>
+			<li><a href="/tags.html"><i class="fa fa-tags"></i>Tags</a></li>
+			<li class="divider"></li>
+			<li><a href="#"><i class="fa fa-arrow-up"></i>Top of Page</a></li>
+		</ul>
+	</div>
+
+	<div class="col-sm-3 sidebar hidden-xs">
+		<!-- sidebar.html -->
+<header class="sidebar-header" role="banner">
+	<a href="/">
+		<img src="http://www.gravatar.com/avatar/08296ac91e277562812a1727de033632?s=150" class="img-circle" />
+	</a>
+	<h3 class="title">
+        <a href="/">Rasmus Rygaard</a>
+    </h3>
+</header>
+
+
+<div id="bio" class="text-center">
+	----------
+</div>
+
+
+<div id="contact-list" class="text-center">
+	<ul class="list-unstyled list-inline">
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://github.com/rasmusrygaard">
+				<i class="fa fa-github-alt fa-lg"></i>
+			</a>
+		</li>
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://twitter.com/rasmusrygaard">
+				<i class="fa fa-twitter fa-lg"></i>
+			</a>
+		</li>
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="mailto:rasmus@rasmusrygaard.com">
+				<i class="fa fa-envelope fa-lg"></i>
+			</a>
+		</li>
+		
+	</ul>
+	<ul id="contact-list-secondary" class="list-unstyled list-inline">
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="/feed.xml">
+				<i class="fa fa-rss fa-lg"></i>
+			</a>
+		</li>
+	</ul>
+</div>
+<!-- sidebar.html end -->
+
+	</div>
+
+	<div class="col-sm-9 col-sm-offset-3">
+		<div class="page-header">
+  <h1>Chord </h1>
+</div>
+	
+<article>
+
+	<div class="col-sm-10">
+	 <span class="post-date">
+	   
+	   January 
+	   1st,
+	     
+	   2016
+	 </span>
+	  <div class="article_body">
+	  <p>I have been wanting to dive into distributed systems for a while, but this year I decided to actually do something about it.
+After spending quite a bit of time diving into systems papers in school, I’ve come to miss the kind of analysis and tradeoffs that reading a distributed system paper makes you consider.
+I’m hoping to turn this into a series of posts analyzing various systems, hopefully drawing some comparisons between them along the way.
+The first system to tackle is Chord<sup id="fnref:0"><a href="#fn:0" class="footnote">1</a></sup>, which was first published at MIT and published at SIGCOMM in 2001.</p>
+
+<p>Chord is a great system to dive into for a couple of reasons.
+First, the service that Chord delivers can be explained in just a couple of sentences.
+This lets us focus more on the implementation of that contract than what the system does or does not provide.
+Second, the design is actually quite simple.
+The decentralized design gives us just a few moving parts.
+The intuition behind the components is also quite elegant.</p>
+
+<h2 id="goals">Goals</h2>
+
+<p>The Chord API is extremely simple.
+Our system provides a function <code>lookup(x)</code> which returns the node which stores <code>x</code>.
+The authors hint at ways in which you can bake replication into the system, but Chord largely ignores what data you store or how you store it.</p>
+
+<p>Our goal is to provide an implementation of <code>lookup</code> with the following properties:</p>
+
+<ul>
+  <li><strong>Scalability</strong>:
+Thousands or tens of thousands of nodes should be able to join the system without slowing down lookups.</li>
+  <li><strong>Fault-Tolerance</strong>:
+Since our system consists of a large number of nodes, we should be able to tolerate a few nodes failing or being temporarily partitioned from the system. In practice, these failures are inevitable.</li>
+  <li><strong>Decentralization</strong>:
+This is more of a design decision than a hard requirement, but our design should consist entirely of equal nodes. There’s no primary node responsible for coordinating, which leaves us without a single point of failure.</li>
+</ul>
+
+<h2 id="a-simple-distributed-hash-table">A simple, distributed hash table</h2>
+
+<p>Our approach will eventually be somewhat sophisticated, but let’s start with the simplest possible solution.
+Let’s model our DHT after an ordinary hash table. Such a table normally has an array of buckets, each of which contains a number of values.
+When the <em>i</em> th node joins, we will append it as the <em>i</em> th bucket in our hash table.
+To minimize overhead, each node can also store a pointer only to its successor (node <em>i</em> has a pointer to node <em>i + 1</em>) instead of an index of all nodes in the DHT.
+Now we can query any node we know to be in the DHT, and simply follow the successor pointers until we arrive at the node storing a given key.
+Keys can be hashed as they would in an ordinary hash table, where node <em>i</em> stores all keys for which <em>H(k) % n == i</em> for some hash function <em>H</em>.</p>
+
+<p>This approach is problematic for a number of reasons, but two issues are particularly tough to solve with this approach.
+First, we need a consistent view of which index next to add a node at.
+If many nodes join and leave the DHT concurrently, this will require significant overhead.
+With thousands of nodes, we will need the majority to agree on which position the new node belongs at which could be quite slow.
+If configuration changes are sufficiently frequent as nodes come and go, we could end up wasting a lot of cycles just on configuration.</p>
+
+<p>Another major issue is key ownership.
+Suppose, for example, that our DHT contains five nodes, each of which contains roughly an equal share of keys.
+What happens if node 0 goes down?
+It previously held all keys for which <em>H(k) % 5 == 0</em>, but after the node failure our system only contains four nodes.
+If we shift over all nodes (the old node 1 becomes the new node 0), a lot of keys need to move.
+For example, a key <em>k</em> for which <em>H(k) = 6</em> moves from node 1 to 2, while a key <em>k’</em> where <em>H(k’) = 17</em> moves from node 2 to 1.
+In short, almost all keys will need to move between nodes.
+This is clearly intractable as our system grows and nodes join and leave more frequently.</p>
+
+<h2 id="consistent-hashing-to-the-rescue">Consistent Hashing to the Rescue</h2>
+
+<p>To solve this, we’ll need to revise our view of the world.
+A linear array of nodes is hard to maintain because the size of the array (and thus the domain we split keys based on) changes as nodes join and leave.
+We will use <em>consistent hashing</em> to solve this.
+Suppose we have <em>K</em> keys and <em>n</em> nodes.
+Consistent hashing is a hashing technique where on average only <em>K/n</em> keys need to move as <em>n</em> changes.
+This is an enormous improvement over our previous linear hashing approach where roughly <em>K</em> keys would move, especially if <em>n</em> is very large.</p>
+
+<p>In consistent hashing, our nodes become points on a circle.
+The size of the circle is determined by the output range of our hash function.
+For example, SHA-256 outputs 256 bits, so our circle will have 2^256 points.
+We’ll place our nodes around this circle by hashing their identifier (an IP address for example).
+Our five nodes from the previous example are now placed in a staggeringly huge space, but on average they should be roughly evenly spaced along the circle.</p>
+
+<p>To divide keys, we’ll make each nodes responsible for all keys between its <em>predecessor</em> and itself.
+When determining which node a key belongs to, we’ll use the <em>successor</em> function which is defined on any point along the circle.
+Thus, <em>successor(x)</em> is the first node we find going clockwise around the circle starting at <em>x</em>.
+Therefore, a key <em>k</em> for which <em>H(k) = x</em> (we’ll assume <em>H = SHA-256</em>) will belong to <em>successor(x)</em>.</p>
+
+<p>Notice how this makes adding and removing nodes almost trivial.
+A new node <em>N</em> whose identifier hashes to <em>y</em> can run <em>lookup(y)</em> on the DHT to get the node that will become its successor in the ring, say <em>M</em>.
+<em>N</em> can contact <em>M</em> and learn about all keys <em>k</em> that <em>M</em> currently owns for which <em>H(k) &lt;= y</em>.
+Then, <em>M</em> and <em>N</em> can simply transfer keys between each other without involving any other nodes.</p>
+
+<p>Not contacting any other nodes is of course a bit of a lie.
+In particular, the last node before <em>M</em> along the circle will still think that <em>M</em> is its successor, even after <em>N</em> joins.
+If this nodes answers a query for a key that now belongs to <em>N</em>, it will fail to find this node.
+To solve this, let’s construct a linked list of the nodes around the circle.
+In addition to storing its successor, each node will also store its predecessor.
+Notes update their <em>predecessor</em> field whenever a new node notifies them that they have joined before them.
+We’ll use the following pseudocode:</p>
+
+<pre><code class="language-ruby">def notify(new_node)
+  if self.predecessor.nil? ||
+    (self.predecessor.index...self.index).include?(new_node.index)
+    self.predecessor = new_node
+  end
+end
+</code></pre>
+
+<p>Nodes then periodically run a <code>stabilize</code> function, which uses this field to check that their view of the circle is consistent:</p>
+
+<pre><code class="language-ruby">def stabilize
+  x = self.successor.predecessor
+  if (self.index...self.successor.index).include?(x)
+    self.successor = x
+  end
+end
+</code></pre>
+
+<p>Now we have a pretty useful foundation up and running.
+Nodes can come and go, and they’ll only need to pull keys from the node whose keys they are taking.
+Nodes also periodically refresh their view of the world to make sure that successor pointers are always correct.
+The <em>successor</em> pointers are therefore used both when adding nodes and keys, which is quite elegant.
+Unfortunately, this linked list of nodes has a significant drawback:
+If we happen to start our search for a key or addition of a node far away from where we will eventually end up, we will need to take many slow steps along the circle first.
+With 10000 nodes in our DHT, we can expect to take 5000 steps on average to find the point we’re interested in.
+Even if we could somehow get to 1ms each time we contact a node, we’ll still spend five seconds walking the circle, which is clearly unacceptable.</p>
+
+<h2 id="finger-tables-to-the-rescue">Finger Tables to the Rescue</h2>
+
+<p>To see how we can speed this up, let’s take a step back.
+At this point, our nodes form a circular, ordered linked list, a data structure not particularly well-suited for efficient lookups.
+A skip list, however, is essentially also a linked list, but with additional “fast track” indexing built into the data structure.
+If you’ve never seen them, I recommend checking them out (although they won’t be critical for understanding Chord) <sup id="fnref:1"><a href="#fn:1" class="footnote">2</a></sup>.</p>
+
+<p>Finger tables provide a similar indexing structure in Chord.
+Instead of a central index, each node will maintain an index that helps skip past successors.
+The finger table for a node <em>n</em> is simply a list of node identifiers.
+The <em>i</em> th identifier is the result of the query <code>successor(n + 2^(i - 1))</code>.
+Note that the first identifier is the query <code>successor(n + 1)</code> which we’ve previously seen as the successor of <em>n</em>.
+Instead of walking around the circle node by node, we can consult the finger table and make the longest possible jump when answering a query.
+If our node has identifier 2, for example, and receive the query <code>lookup(70)</code>, we can jump to the 6th node in the finger table.
+That node could be the owner of 70 (if no nodes have identifiers between 66 and 69), but even in the worst case we’ll make significant progress.
+Even if our circle is saturated with nodes, we’ll jump from 2 to 66 and then from 66 to 70, just two hops.
+That is remarkable compared to the 68 hops we would need without the finger table.</p>
+
+<p>Since finger table entry offsets are successive powers of two, an up-to-date table will always help us jump past half the nodes between us and the target node.
+To see this, I find it helpful to think about the <em>i + 1</em> th node in the finger table.
+In the worst case, is the immediate successor of the target node.
+In other words, we are approximately <em>2^(i + 2)</em> steps along the circle away.
+By construction, the <em>i</em> th node must be at least as close to the target node as it is to us.
+This must be true since it is the successor of the point halfway between us and the target (<code>successor(n + 2^(i + 1))</code>, more precisely).
+Following the _i_th finger therefore cuts the distance between us and the target node in half.</p>
+
+<p>You may have noticed that I have stressed the need for an <em>up-to-date</em> finger table above.
+It turns out that finger tables can get stale quite quickly unless we are dilligent about updating them.
+This is fairly obvious since our usual update mechanisms only involved a new node’s immediate successor and predecessor.
+We have no “backwards” pointers in a finger table, so nodes do not know which finger tables they are part of.
+Therefore we do not have a perfect way to keep finger tables in sync.
+The Chord paper solves this using the following helpers:</p>
+
+<pre><code class="language-ruby">def update_others
+  (1..m).each do |i|
+    p = find_predecessor(self.index - 2 ** (i - 1))
+    p.update_finger_table(self, i)
+  end
+end
+
+def update_finger_table(node, i)
+  if (self.index..self.finger[i].index).include?(node.index)
+    finger[i] = node
+    p = self.predecessor
+    p.update_finger_table(node, i)
+  end
+end
+</code></pre>
+
+<p>In the code above, <code>find_predecessor</code> returns the node immediately preceding a given index.
+The distance between this node and our node must be at least <code>2 ** (i - 1)</code>, so our node could be its <em>i</em> th finger.
+We may also be the <em>i</em> th finger of some number of predecessors of this node, which is why we keep following predecessor links.</p>
+
+<h2 id="virtual-reality">Virtual Reality</h2>
+
+<p>As described above, the Chord protocol works well under one important assumption:
+That nodes each own a relatively equal number of keys.
+The protocol starts breaking down for a number of reasons if that assumption is violated.
+Any node with a disproportionate number of keys could easily become a bottleneck.
+A client that always contacts the same node for queries could also easily get unlucky if this crowded node is far away along the circle.</p>
+
+<p>Chord solves this by introducing the concept of “virtual nodes”.
+Each node in the circle hosts a number of virtual nodes, each of which is assigned a random identifier which places it a random point around the circle.
+With virtual nodes, a physical node now needs to be responsible for several popular virtual nodes before it experiences increased load.
+I will not spend too much time on the probability argument here since this blog post from eighty-twenty does an excellent job<sup id="fnref:2"><a href="#fn:2" class="footnote">3</a></sup></p>
+
+<p>I will note, however, that there is an obvious tension between scalability and overhead when we use virtual nodes.
+With <em>r</em> virtual nodes per physical nodes, we will need <em>r</em> times as much storage in our routing tables.
+Where finger tables normally contained <em>log(M)</em> entries, they will now need to hold <em>r log(M)</em> pointers.
+The Chord authors suggest using <em>r = log(N)</em>, which would require <em>log(N) log(M)</em> storage.
+Even with <em>10^6</em> nodes, however, <em>r = log_2(10^6) = 20</em>, which is still quite manageable.</p>
+
+<p>Curiously, adding more nodes does not affect expected query path length as long as <em>r = log(N)</em>.
+to see this, remember that queries are logarithmic in the number of nodes, which previously gave us <em>O(log N)</em> query path lengths.
+As the number of nodes increases by <em>r</em> we get an expected path length of <em>O(log(r N)) = O(log (N log N)) = O(log N)</em>.</p>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:0">
+      <p><a href="https://pdos.csail.mit.edu/papers/chord:sigcomm01/chord_sigcomm.pdf">Chord: A Scalable Peer-to-peer Lookup Service for Internet Applications</a> <a href="#fnref:0" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:1">
+      <p><a href="http://epaperpress.com/sortsearch/download/skiplist.pdf">Skip Lists: A Probabilistic Alternative to Balanced Trees</a> <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+    <li id="fn:2">
+      <p><a href="http://eighty-twenty.org/2013/03/26/span-lengths-in-chord-style-dhts.html">Chord-style DHTs don’t fairly balance their load without a fight</a> <a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+	  </div>
+
+		
+		<ul class="tag_box list-unstyled list-inline">
+		  <li><i class="fa fa-folder-open"></i></li>
+		  
+		  
+			 
+				<li><a href="/categories.html#distributed_systems-ref">
+					distributed_systems <span>(1)</span>
+					
+				</a></li>
+			
+		  
+		</ul>
+		  
+
+		  
+
+		<hr>
+
+		<div>
+      <section class="share col-sm-6">
+        <h4 class="section-title">Share Post</h4>
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=Chord&via=rasmusrygaard"
+           onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <i class="fa fa-twitter fa-lg"></i>
+          Twitter
+        </a>
+        <a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php"
+           onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <i class="fa fa-facebook fa-lg"></i>
+          Facebook
+        </a>
+        <a class="btn btn-default btn-sm gplus"
+           onclick="window.open('https://plus.google.com/share?url='+window.location.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus fa-lg"></i>
+          Google+
+        </a>
+      </section>
+
+      <section class="col-sm-6 author">
+        <img src="http://www.gravatar.com/avatar/08296ac91e277562812a1727de033632" class="img-rounded author-image" />
+        <h4 class="section-title author-name">Rasmus Rygaard</h4>
+        <p class="author-bio">----------</p>
+      </section>
+    </div>
+
+    <div class="clearfix"></div>
+
+		<ul class="pager">
+		  
+		  <li class="previous"><a href="/instagram/2015/06/30/Alcanzar/" title="Alcanzar">&larr; Previous</a></li>
+		  
+		  
+		  <li class="next"><a href="/2016/07/03/Go-Interfaces/" title="Interfaces in Go">Next &rarr;</a></li>
+		  
+		</ul>
+
+		<hr>
+	</div>
+	
+	<div class="col-sm-2 sidebar-2">
+	
+	</div>
+</article>
+<div class="clearfix"></div>
+
+
+
+
+
+		<footer>
+			<hr/>
+			<p>
+				&copy; 2018 Rasmus Rygaard with Jekyll. Theme: <a href="https://github.com/dbtek/dbyll">dbyll</a> by dbtek.
+			</p>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="/assets/resources/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/resources/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/assets/js/app.js"></script>
+</body>
+</html>
+
+
+
+<!-- Asynchronous Google Analytics snippet -->
+<script>
+  var _gaq = _gaq || [];
+  var pluginUrl =
+ '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+  _gaq.push(['_require', 'inpage_linkid', pluginUrl]);
+  _gaq.push(['_setAccount', 'dbyll']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+

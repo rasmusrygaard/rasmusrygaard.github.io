@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <head/>
+    <body>
+<script src="https://js.stripe.com/v3/"></script>
+
+<button id="checkoutButton" type="button">Click Me!</button>
+
+<script>
+ stripe = Stripe('pk_live_0WQ64r0Sf2CVEZOSvSWSvj1N', {betas: ['payment_pages_beta_1']});
+
+ button = document.getElementById("checkoutButton");
+ button.addEventListener('click', async ev => {
+   res = await stripe.redirectToPaymentPage({
+     sku: 'sku_DdPa11MaUkptxl',
+     success_url: 'https://example.org/success',
+     cancel_url: 'https://example.org/canceled',
+   });
+
+   if (res.error) {
+     // Handle error
+   }
+  });
+</script>
+</body>

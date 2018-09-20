@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Rasmus Rygaard</title>
+		<description>Stylish Jekyll Theme</description>
+		<link>/</link>
+		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
+		
+			<item>
+				<title>Interfaces in Go</title>
+				<description>&lt;p&gt;Though plenty of people built up hype around interfaces in Go, I saw them as little more than a keyword. &lt;code&gt;interface&lt;/code&gt; had obvious expressive powers but nothing more than &lt;code&gt;for&lt;/code&gt; or &lt;code&gt;struct&lt;/code&gt;. Definitely nothing that warranted the adjectives – “powerful”, “expressive” – that so many Go developers happily attached to them.&lt;/p&gt;
+
+&lt;p&gt;Go’s &lt;code&gt;interface&lt;/code&gt; is similar to Java’s &lt;code&gt;interface&lt;/code&gt; that you might be familiar with, but with some key differences. Like in Java, interfaces in Go are all about &lt;em&gt;behavior&lt;/em&gt;. You can’t wrap instance variables or other data, only the the methods on top of that data. For example, a simple interface would be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-go&quot;&gt;type NamedReader interface {
+    Name() string
+    io.Reader
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Any type that satisfies this interface knows how to generate an ID. The implementation, however, is entirely hidden. We could have a counter that is incremented on each call to &lt;code&gt;NextID&lt;/code&gt;, we could read from &lt;code&gt;/dev/urandom&lt;/code&gt; or we could generate a GUID.&lt;/p&gt;
+</description>
+				<pubDate>Sun, 03 Jul 2016 00:00:00 -0700</pubDate>
+				<link>/2016/07/03/Go-Interfaces/</link>
+				<guid isPermaLink="true">/2016/07/03/Go-Interfaces/</guid>
+			</item>
+		
+			<item>
+				<title>Chord</title>
+				<description>&lt;p&gt;I have been wanting to dive into distributed systems for a while, but this year I decided to actually do something about it.
+After spending quite a bit of time diving into systems papers in school, I’ve come to miss the kind of analysis and tradeoffs that reading a distributed system paper makes you consider.
+I’m hoping to turn this into a series of posts analyzing various systems, hopefully drawing some comparisons between them along the way.
+The first system to tackle is Chord&lt;sup id=&quot;fnref:0&quot;&gt;&lt;a href=&quot;#fn:0&quot; class=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;, which was first published at MIT and published at SIGCOMM in 2001.&lt;/p&gt;
+
+&lt;p&gt;Chord is a great system to dive into for a couple of reasons.
+First, the service that Chord delivers can be explained in just a couple of sentences.
+This lets us focus more on the implementation of that contract than what the system does or does not provide.
+Second, the design is actually quite simple.
+The decentralized design gives us just a few moving parts.
+The intuition behind the components is also quite elegant.&lt;/p&gt;
+
+&lt;h2 id=&quot;goals&quot;&gt;Goals&lt;/h2&gt;
+
+&lt;p&gt;The Chord API is extremely simple.
+Our system provides a function &lt;code&gt;lookup(x)&lt;/code&gt; which returns the node which stores &lt;code&gt;x&lt;/code&gt;.
+The authors hint at ways in which you can bake replication into the system, but Chord largely ignores what data you store or how you store it.&lt;/p&gt;
+
+&lt;p&gt;Our goal is to provide an implementation of &lt;code&gt;lookup&lt;/code&gt; with the following properties:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Scalability&lt;/strong&gt;:
+Thousands or tens of thousands of nodes should be able to join the system without slowing down lookups.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Fault-Tolerance&lt;/strong&gt;:
+Since our system consists of a large number of nodes, we should be able to tolerate a few nodes failing or being temporarily partitioned from the system. In practice, these failures are inevitable.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Decentralization&lt;/strong&gt;:
+This is more of a design decision than a hard requirement, but our design should consist entirely of equal nodes. There’s no primary node responsible for coordinating, which leaves us without a single point of failure.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;a-simple-distributed-hash-table&quot;&gt;A simple, distributed hash table&lt;/h2&gt;
+
+&lt;p&gt;Our approach will eventually be somewhat sophisticated, but let’s start with the simplest possible solution.
+Let’s model our DHT after an ordinary hash table. Such a table normally has an array of buckets, each of which contains a number of values.
+When the &lt;em&gt;i&lt;/em&gt; th node joins, we will append it as the &lt;em&gt;i&lt;/em&gt; th bucket in our hash table.
+To minimize overhead, each node can also store a pointer only to its successor (node &lt;em&gt;i&lt;/em&gt; has a pointer to node &lt;em&gt;i + 1&lt;/em&gt;) instead of an index of all nodes in the DHT.
+Now we can query any node we know to be in the DHT, and simply follow the successor pointers until we arrive at the node storing a given key.
+Keys can be hashed as they would in an ordinary hash table, where node &lt;em&gt;i&lt;/em&gt; stores all keys for which &lt;em&gt;H(k) % n == i&lt;/em&gt; for some hash function &lt;em&gt;H&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;This approach is problematic for a number of reasons, but two issues are particularly tough to solve with this approach.
+First, we need a consistent view of which index next to add a node at.
+If many nodes join and leave the DHT concurrently, this will require significant overhead.
+With thousands of nodes, we will need the majority to agree on which position the new node belongs at which could be quite slow.
+If configuration changes are sufficiently frequent as nodes come and go, we could end up wasting a lot of cycles just on configuration.&lt;/p&gt;
+
+&lt;p&gt;Another major issue is key ownership.
+Suppose, for example, that our DHT contains five nodes, each of which contains roughly an equal share of keys.
+What happens if node 0 goes down?
+It previously held all keys for which &lt;em&gt;H(k) % 5 == 0&lt;/em&gt;, but after the node failure our system only contains four nodes.
+If we shift over all nodes (the old node 1 becomes the new node 0), a lot of keys need to move.
+For example, a key &lt;em&gt;k&lt;/em&gt; for which &lt;em&gt;H(k) = 6&lt;/em&gt; moves from node 1 to 2, while a key &lt;em&gt;k’&lt;/em&gt; where &lt;em&gt;H(k’) = 17&lt;/em&gt; moves from node 2 to 1.
+In short, almost all keys will need to move between nodes.
+This is clearly intractable as our system grows and nodes join and leave more frequently.&lt;/p&gt;
+
+&lt;h2 id=&quot;consistent-hashing-to-the-rescue&quot;&gt;Consistent Hashing to the Rescue&lt;/h2&gt;
+
+&lt;p&gt;To solve this, we’ll need to revise our view of the world.
+A linear array of nodes is hard to maintain because the size of the array (and thus the domain we split keys based on) changes as nodes join and leave.
+We will use &lt;em&gt;consistent hashing&lt;/em&gt; to solve this.
+Suppose we have &lt;em&gt;K&lt;/em&gt; keys and &lt;em&gt;n&lt;/em&gt; nodes.
+Consistent hashing is a hashing technique where on average only &lt;em&gt;K/n&lt;/em&gt; keys need to move as &lt;em&gt;n&lt;/em&gt; changes.
+This is an enormous improvement over our previous linear hashing approach where roughly &lt;em&gt;K&lt;/em&gt; keys would move, especially if &lt;em&gt;n&lt;/em&gt; is very large.&lt;/p&gt;
+
+&lt;p&gt;In consistent hashing, our nodes become points on a circle.
+The size of the circle is determined by the output range of our hash function.
+For example, SHA-256 outputs 256 bits, so our circle will have 2^256 points.
+We’ll place our nodes around this circle by hashing their identifier (an IP address for example).
+Our five nodes from the previous example are now placed in a staggeringly huge space, but on average they should be roughly evenly spaced along the circle.&lt;/p&gt;
+
+&lt;p&gt;To divide keys, we’ll make each nodes responsible for all keys between its &lt;em&gt;predecessor&lt;/em&gt; and itself.
+When determining which node a key belongs to, we’ll use the &lt;em&gt;successor&lt;/em&gt; function which is defined on any point along the circle.
+Thus, &lt;em&gt;successor(x)&lt;/em&gt; is the first node we find going clockwise around the circle starting at &lt;em&gt;x&lt;/em&gt;.
+Therefore, a key &lt;em&gt;k&lt;/em&gt; for which &lt;em&gt;H(k) = x&lt;/em&gt; (we’ll assume &lt;em&gt;H = SHA-256&lt;/em&gt;) will belong to &lt;em&gt;successor(x)&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Notice how this makes adding and removing nodes almost trivial.
+A new node &lt;em&gt;N&lt;/em&gt; whose identifier hashes to &lt;em&gt;y&lt;/em&gt; can run &lt;em&gt;lookup(y)&lt;/em&gt; on the DHT to get the node that will become its successor in the ring, say &lt;em&gt;M&lt;/em&gt;.
+&lt;em&gt;N&lt;/em&gt; can contact &lt;em&gt;M&lt;/em&gt; and learn about all keys &lt;em&gt;k&lt;/em&gt; that &lt;em&gt;M&lt;/em&gt; currently owns for which &lt;em&gt;H(k) &amp;lt;= y&lt;/em&gt;.
+Then, &lt;em&gt;M&lt;/em&gt; and &lt;em&gt;N&lt;/em&gt; can simply transfer keys between each other without involving any other nodes.&lt;/p&gt;
+
+&lt;p&gt;Not contacting any other nodes is of course a bit of a lie.
+In particular, the last node before &lt;em&gt;M&lt;/em&gt; along the circle will still think that &lt;em&gt;M&lt;/em&gt; is its successor, even after &lt;em&gt;N&lt;/em&gt; joins.
+If this nodes answers a query for a key that now belongs to &lt;em&gt;N&lt;/em&gt;, it will fail to find this node.
+To solve this, let’s construct a linked list of the nodes around the circle.
+In addition to storing its successor, each node will also store its predecessor.
+Notes update their &lt;em&gt;predecessor&lt;/em&gt; field whenever a new node notifies them that they have joined before them.
+We’ll use the following pseudocode:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-ruby&quot;&gt;def notify(new_node)
+  if self.predecessor.nil? ||
+    (self.predecessor.index...self.index).include?(new_node.index)
+    self.predecessor = new_node
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Nodes then periodically run a &lt;code&gt;stabilize&lt;/code&gt; function, which uses this field to check that their view of the circle is consistent:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-ruby&quot;&gt;def stabilize
+  x = self.successor.predecessor
+  if (self.index...self.successor.index).include?(x)
+    self.successor = x
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we have a pretty useful foundation up and running.
+Nodes can come and go, and they’ll only need to pull keys from the node whose keys they are taking.
+Nodes also periodically refresh their view of the world to make sure that successor pointers are always correct.
+The &lt;em&gt;successor&lt;/em&gt; pointers are therefore used both when adding nodes and keys, which is quite elegant.
+Unfortunately, this linked list of nodes has a significant drawback:
+If we happen to start our search for a key or addition of a node far away from where we will eventually end up, we will need to take many slow steps along the circle first.
+With 10000 nodes in our DHT, we can expect to take 5000 steps on average to find the point we’re interested in.
+Even if we could somehow get to 1ms each time we contact a node, we’ll still spend five seconds walking the circle, which is clearly unacceptable.&lt;/p&gt;
+
+&lt;h2 id=&quot;finger-tables-to-the-rescue&quot;&gt;Finger Tables to the Rescue&lt;/h2&gt;
+
+&lt;p&gt;To see how we can speed this up, let’s take a step back.
+At this point, our nodes form a circular, ordered linked list, a data structure not particularly well-suited for efficient lookups.
+A skip list, however, is essentially also a linked list, but with additional “fast track” indexing built into the data structure.
+If you’ve never seen them, I recommend checking them out (although they won’t be critical for understanding Chord) &lt;sup id=&quot;fnref:1&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot;&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+
+&lt;p&gt;Finger tables provide a similar indexing structure in Chord.
+Instead of a central index, each node will maintain an index that helps skip past successors.
+The finger table for a node &lt;em&gt;n&lt;/em&gt; is simply a list of node identifiers.
+The &lt;em&gt;i&lt;/em&gt; th identifier is the result of the query &lt;code&gt;successor(n + 2^(i - 1))&lt;/code&gt;.
+Note that the first identifier is the query &lt;code&gt;successor(n + 1)&lt;/code&gt; which we’ve previously seen as the successor of &lt;em&gt;n&lt;/em&gt;.
+Instead of walking around the circle node by node, we can consult the finger table and make the longest possible jump when answering a query.
+If our node has identifier 2, for example, and receive the query &lt;code&gt;lookup(70)&lt;/code&gt;, we can jump to the 6th node in the finger table.
+That node could be the owner of 70 (if no nodes have identifiers between 66 and 69), but even in the worst case we’ll make significant progress.
+Even if our circle is saturated with nodes, we’ll jump from 2 to 66 and then from 66 to 70, just two hops.
+That is remarkable compared to the 68 hops we would need without the finger table.&lt;/p&gt;
+
+&lt;p&gt;Since finger table entry offsets are successive powers of two, an up-to-date table will always help us jump past half the nodes between us and the target node.
+To see this, I find it helpful to think about the &lt;em&gt;i + 1&lt;/em&gt; th node in the finger table.
+In the worst case, is the immediate successor of the target node.
+In other words, we are approximately &lt;em&gt;2^(i + 2)&lt;/em&gt; steps along the circle away.
+By construction, the &lt;em&gt;i&lt;/em&gt; th node must be at least as close to the target node as it is to us.
+This must be true since it is the successor of the point halfway between us and the target (&lt;code&gt;successor(n + 2^(i + 1))&lt;/code&gt;, more precisely).
+Following the _i_th finger therefore cuts the distance between us and the target node in half.&lt;/p&gt;
+
+&lt;p&gt;You may have noticed that I have stressed the need for an &lt;em&gt;up-to-date&lt;/em&gt; finger table above.
+It turns out that finger tables can get stale quite quickly unless we are dilligent about updating them.
+This is fairly obvious since our usual update mechanisms only involved a new node’s immediate successor and predecessor.
+We have no “backwards” pointers in a finger table, so nodes do not know which finger tables they are part of.
+Therefore we do not have a perfect way to keep finger tables in sync.
+The Chord paper solves this using the following helpers:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-ruby&quot;&gt;def update_others
+  (1..m).each do |i|
+    p = find_predecessor(self.index - 2 ** (i - 1))
+    p.update_finger_table(self, i)
+  end
+end
+
+def update_finger_table(node, i)
+  if (self.index..self.finger[i].index).include?(node.index)
+    finger[i] = node
+    p = self.predecessor
+    p.update_finger_table(node, i)
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In the code above, &lt;code&gt;find_predecessor&lt;/code&gt; returns the node immediately preceding a given index.
+The distance between this node and our node must be at least &lt;code&gt;2 ** (i - 1)&lt;/code&gt;, so our node could be its &lt;em&gt;i&lt;/em&gt; th finger.
+We may also be the &lt;em&gt;i&lt;/em&gt; th finger of some number of predecessors of this node, which is why we keep following predecessor links.&lt;/p&gt;
+
+&lt;h2 id=&quot;virtual-reality&quot;&gt;Virtual Reality&lt;/h2&gt;
+
+&lt;p&gt;As described above, the Chord protocol works well under one important assumption:
+That nodes each own a relatively equal number of keys.
+The protocol starts breaking down for a number of reasons if that assumption is violated.
+Any node with a disproportionate number of keys could easily become a bottleneck.
+A client that always contacts the same node for queries could also easily get unlucky if this crowded node is far away along the circle.&lt;/p&gt;
+
+&lt;p&gt;Chord solves this by introducing the concept of “virtual nodes”.
+Each node in the circle hosts a number of virtual nodes, each of which is assigned a random identifier which places it a random point around the circle.
+With virtual nodes, a physical node now needs to be responsible for several popular virtual nodes before it experiences increased load.
+I will not spend too much time on the probability argument here since this blog post from eighty-twenty does an excellent job&lt;sup id=&quot;fnref:2&quot;&gt;&lt;a href=&quot;#fn:2&quot; class=&quot;footnote&quot;&gt;3&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+
+&lt;p&gt;I will note, however, that there is an obvious tension between scalability and overhead when we use virtual nodes.
+With &lt;em&gt;r&lt;/em&gt; virtual nodes per physical nodes, we will need &lt;em&gt;r&lt;/em&gt; times as much storage in our routing tables.
+Where finger tables normally contained &lt;em&gt;log(M)&lt;/em&gt; entries, they will now need to hold &lt;em&gt;r log(M)&lt;/em&gt; pointers.
+The Chord authors suggest using &lt;em&gt;r = log(N)&lt;/em&gt;, which would require &lt;em&gt;log(N) log(M)&lt;/em&gt; storage.
+Even with &lt;em&gt;10^6&lt;/em&gt; nodes, however, &lt;em&gt;r = log_2(10^6) = 20&lt;/em&gt;, which is still quite manageable.&lt;/p&gt;
+
+&lt;p&gt;Curiously, adding more nodes does not affect expected query path length as long as &lt;em&gt;r = log(N)&lt;/em&gt;.
+to see this, remember that queries are logarithmic in the number of nodes, which previously gave us &lt;em&gt;O(log N)&lt;/em&gt; query path lengths.
+As the number of nodes increases by &lt;em&gt;r&lt;/em&gt; we get an expected path length of &lt;em&gt;O(log(r N)) = O(log (N log N)) = O(log N)&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;footnotes&quot;&gt;
+  &lt;ol&gt;
+    &lt;li id=&quot;fn:0&quot;&gt;
+      &lt;p&gt;&lt;a href=&quot;https://pdos.csail.mit.edu/papers/chord:sigcomm01/chord_sigcomm.pdf&quot;&gt;Chord: A Scalable Peer-to-peer Lookup Service for Internet Applications&lt;/a&gt; &lt;a href=&quot;#fnref:0&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li id=&quot;fn:1&quot;&gt;
+      &lt;p&gt;&lt;a href=&quot;http://epaperpress.com/sortsearch/download/skiplist.pdf&quot;&gt;Skip Lists: A Probabilistic Alternative to Balanced Trees&lt;/a&gt; &lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li id=&quot;fn:2&quot;&gt;
+      &lt;p&gt;&lt;a href=&quot;http://eighty-twenty.org/2013/03/26/span-lengths-in-chord-style-dhts.html&quot;&gt;Chord-style DHTs don’t fairly balance their load without a fight&lt;/a&gt; &lt;a href=&quot;#fnref:2&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;
+</description>
+				<pubDate>Fri, 01 Jan 2016 12:00:00 +0000</pubDate>
+				<link>/distributed_systems/2016/01/01/Chord/</link>
+				<guid isPermaLink="true">/distributed_systems/2016/01/01/Chord/</guid>
+			</item>
+		
+			<item>
+				<title>Alcanzar</title>
+				<description>
+</description>
+				<pubDate>Tue, 30 Jun 2015 12:00:00 +0000</pubDate>
+				<link>/instagram/2015/06/30/Alcanzar/</link>
+				<guid isPermaLink="true">/instagram/2015/06/30/Alcanzar/</guid>
+			</item>
+		
+			<item>
+				<title>On Track</title>
+				<description>
+</description>
+				<pubDate>Tue, 09 Jun 2015 12:00:00 +0000</pubDate>
+				<link>/instagram/2015/06/09/On-Track/</link>
+				<guid isPermaLink="true">/instagram/2015/06/09/On-Track/</guid>
+			</item>
+		
+			<item>
+				<title>Gloomy Louisiana</title>
+				<description>
+</description>
+				<pubDate>Fri, 27 Mar 2015 12:00:00 +0000</pubDate>
+				<link>/instagram/2015/03/27/Gloomy-Louisiana/</link>
+				<guid isPermaLink="true">/instagram/2015/03/27/Gloomy-Louisiana/</guid>
+			</item>
+		
+			<item>
+				<title>Steam</title>
+				<description>
+</description>
+				<pubDate>Fri, 12 Dec 2014 12:00:00 +0000</pubDate>
+				<link>/instagram/2014/12/12/Steam/</link>
+				<guid isPermaLink="true">/instagram/2014/12/12/Steam/</guid>
+			</item>
+		
+			<item>
+				<title>High Line</title>
+				<description>
+</description>
+				<pubDate>Sun, 30 Nov 2014 12:00:00 +0000</pubDate>
+				<link>/instagram/2014/11/30/High-Line/</link>
+				<guid isPermaLink="true">/instagram/2014/11/30/High-Line/</guid>
+			</item>
+		
+			<item>
+				<title>One WTC</title>
+				<description>
+</description>
+				<pubDate>Wed, 26 Nov 2014 12:00:00 +0000</pubDate>
+				<link>/instagram/2014/11/26/One-WTC/</link>
+				<guid isPermaLink="true">/instagram/2014/11/26/One-WTC/</guid>
+			</item>
+		
+			<item>
+				<title>High Line</title>
+				<description>
+</description>
+				<pubDate>Mon, 24 Nov 2014 12:00:00 +0000</pubDate>
+				<link>/instagram/2014/11/24/High-Line/</link>
+				<guid isPermaLink="true">/instagram/2014/11/24/High-Line/</guid>
+			</item>
+		
+			<item>
+				<title>Sonoma</title>
+				<description>
+</description>
+				<pubDate>Sat, 15 Nov 2014 12:00:00 +0000</pubDate>
+				<link>/instagram/2014/11/15/Sonoma/</link>
+				<guid isPermaLink="true">/instagram/2014/11/15/Sonoma/</guid>
+			</item>
+		
+	</channel>
+</rss>
